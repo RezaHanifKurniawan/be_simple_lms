@@ -11,7 +11,7 @@ bookmark_router = Router(tags=["Bookmark Content"])
 @bookmark_router.post("/", auth=apiAuth, response={201: ContentBookmarkOut, 400: MessageOut, 403: MessageOut, 409: MessageOut})
 def add_bookmark(request, payload: ContentBookmarkIn):
     """
-    Add Bookmark: Student membuat bookmark pada course content yang mereka ikuti.
+    Add Bookmark: Hanya Student yg bisa membuat bookmark pada course content yang mereka ikuti.
     """
     user_id = request.user.id
     content = get_object_or_404(CourseContent, id=payload.content_id)

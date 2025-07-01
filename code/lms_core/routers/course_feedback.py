@@ -11,7 +11,7 @@ feedback_router = Router(tags=["Course Feedback"])
 @feedback_router.post("/{course_id}/feedbacks", auth=apiAuth, response={201: CourseFeedbackOut, 403: MessageOut, 404: MessageOut})
 def add_feedback(request, course_id: int, payload: CourseFeedbackIn):
     """
-    Add Feedback: Student dapat menambahkan feedback pada course tertentu.
+    Add Feedback: Hanya Student yg dapat menambahkan feedback pada course tertentu.
     Satu student hanya dapat memberikan satu feedback untuk setiap course.
     """
     course = get_object_or_404(Course, id=course_id)
@@ -45,7 +45,7 @@ def show_feedback(request, course_id: int):
 @feedback_router.put("/{course_id}/feedbacks/{feedback_id}", auth=apiAuth, response={200: CourseFeedbackOut, 403: MessageOut, 404: MessageOut})
 def edit_feedback(request, course_id: int, feedback_id: int, payload: CourseFeedbackIn):
     """
-    Edit Feedback: Student dapat mengedit feedback yang sudah ditulisnya pada course tertentu.
+    Edit Feedback: Student yg membuat feedback dapat mengedit feedback yang sudah ditulisnya pada course tertentu.
     """
     course = get_object_or_404(Course, id=course_id)
     user_id = request.user.id
