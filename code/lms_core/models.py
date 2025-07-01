@@ -8,6 +8,7 @@ class Course(models.Model):
     price = models.IntegerField("Harga")
     image = models.ImageField("Gambar", upload_to="course", blank=True, null=True)
     teacher = models.ForeignKey(User, verbose_name="Pengajar", on_delete=models.RESTRICT)
+    category = models.ForeignKey('CourseCategory', verbose_name="Kategori", on_delete=models.SET_NULL, null=True, blank=True, related_name="courses")
     created_at = models.DateTimeField("Dibuat pada", auto_now_add=True)
     updated_at = models.DateTimeField("Diperbarui pada", auto_now=True)
 
@@ -70,3 +71,58 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return "Komen: "+self.member_id.user_id+"-"+self.comment
+    
+class CourseAnnouncement(models.Model):
+    course = models.ForeignKey(Course, verbose_name="Mata Kuliah", on_delete=models.CASCADE, related_name='announcements')
+    title = models.CharField("Judul", max_length=255)
+    content = models.TextField("Konten")
+    show_at = models.DateTimeField("Tampilkan pada")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.course.name} - {self.title}"
+
+    class Meta:
+        verbose_name = "Pengumuman Mata Kuliah"
+        verbose_name_plural = "Pengumuman Mata Kuliah"
+        ordering = ['-show_at']
+        
+# ...existing code...
+
+class CourseFeedback(models.Model):
+    course = models.ForeignKey(Course, verbose_name="Mata Kuliah", on_delete=models.CASCADE, related_name='feedbacks')
+    student = models.ForeignKey(User, verbose_name="Siswa", on_delete=models.CASCADE)
+    feedback = models.TextField("Umpan Balik")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Feedback Mata Kuliah"
+        verbose_name_plural = "Feedback Mata Kuliah"
+        unique_together = ('course', 'student')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.course.name} - {self.student.username}"
+    
+    
+class CourseCategory(models.Model):
+    name = models.CharField("Nama Kategori", max_length=100, unique=True)
+    creator = models.ForeignKey(User, verbose_name="Pembuat", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Kategori Kursus"
+        verbose_name_plural = "Kategori Kursus"
+
+    def __str__(self):
+        return self.name
+    
+class ContentBookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookmarks")
+    name = models.CharField(max_length=255, default="Untitled")  # nama bookmark
+    content = models.ForeignKey(CourseContent, on_delete=models.CASCADE, related_name="bookmarks")
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together = ('user', 'content')

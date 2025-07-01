@@ -70,9 +70,12 @@ with open(filepath+'comments.json') as jsonfile:
         if int(row['user_id']) > 50:
             row['user_id'] = randint(5, 40)
         if not Comment.objects.filter(pk=num+1).exists():
-            obj_create.append(Comment(content_id=CourseContent.objects.get(pk=int(row['content_id'])), 
-                                   member_id=User.objects.get(pk=int(row['user_id'])), 
-                                   comment=row['comment']))
+            content = CourseContent.objects.get(pk=int(row['content_id']))
+            member = CourseMember.objects.filter(course_id=content.course_id, user_id=int(row['user_id'])).first()
+            if member:
+                obj_create.append(Comment(content_id=content, 
+                                       member_id=member, 
+                                       comment=row['comment']))
     Comment.objects.bulk_create(obj_create)
 
 print("--- %s seconds ---" % (time.time() - start_time))
